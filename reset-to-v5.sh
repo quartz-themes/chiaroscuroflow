@@ -250,9 +250,10 @@ reset_theme() {
       fi
 
       # Set GitHub Pages to deploy from GitHub Actions workflow
-      if ! gh api -X PUT "repos/${ORG}/${theme}/pages" -f build_type="workflow" -f source[branch]="${TARGET_BRANCH}" -f source[path]="/" &>/dev/null; then
+      local pages_body='{"build_type":"workflow","source":{"branch":"'"${TARGET_BRANCH}"'","path":"/"}}'
+      if ! echo "$pages_body" | gh api -X PUT "repos/${ORG}/${theme}/pages" --input - &>/dev/null; then
         # Pages might not exist yet — try creating it first
-        if ! gh api -X POST "repos/${ORG}/${theme}/pages" -f build_type="workflow" -f source[branch]="${TARGET_BRANCH}" -f source[path]="/" &>/dev/null; then
+        if ! echo "$pages_body" | gh api -X POST "repos/${ORG}/${theme}/pages" --input - &>/dev/null; then
           echo "WARN ${theme}: failed to configure GitHub Pages deploy source"
         fi
       fi
